@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Env } from '@/env'
 import { JwtStrategy } from './jwt.strategy'
 import { PassportModule } from '@nestjs/passport'
 import { JwtModule } from '@nestjs/jwt'
+import { Env } from '../env'
 
 @Module({
     imports: [
