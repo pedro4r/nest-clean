@@ -1,56 +1,34 @@
-import { PrismaService } from '@/infra/database/prisma/prisma.service'
-import {
-    Body,
-    ConflictException,
-    Controller,
-    HttpCode,
-    Post,
-    UsePipes,
-} from '@nestjs/common'
-
-import { hash } from 'bcryptjs'
+import { Body, Controller, HttpCode, Post, UsePipes } from '@nestjs/common'
 import { z } from 'zod'
+import { RegisterStudentUseCase } from '@/domain/forum/application/use-cases/register-student'
 import { ZodValidationPipe } from '../pipes/zode-validation-pipe'
 
-
 const createAccountBodySchema = z.object({
-    name: z.string(),
-    email: z.string().email(),
-    password: z.string(),
+  name: z.string(),
+  email: z.string().email(),
+  password: z.string(),
 })
 
 type CreateAccountBodySchema = z.infer<typeof createAccountBodySchema>
 
 @Controller('/accounts')
 export class CreateAccountController {
-    constructor(private prisma: PrismaService) {}
+  constructor(private registerStudent: RegisterStudentUseCase) {}
 
-    @Post()
-    @HttpCode(201)
-    @UsePipes(new ZodValidationPipe(createAccountBodySchema))
-    async handle(@Body() body: CreateAccountBodySchema) {
-        const { name, email, password } = body
+  @Post()
+  @HttpCode(201)
+  @UsePipes(new ZodValidationPipe(createAccountBodySchema))
+  async handle(@Body() body: CreateAccountBodySchema) {
+    const { name, email, password } = body
 
-        const userWithSameEmail = await this.prisma.user.findUnique({
-            where: {
-                email,
-            },
-        })
+    const result = await this.registerStudent.execute({
+      name,
+      email,
+      password,
+    })
 
-        if (userWithSameEmail) {
-            throw new ConflictException(
-                'User with same e-mail address already exists.'
-            )
-        }
-
-        const hashedPassword = await hash(password, 8)
-
-        await this.prisma.user.create({
-            data: {
-                name,
-                email,
-                password: hashedPassword,
-            },
-        })
+    if (result.isLeft()) {
+      throw new Error()
     }
+  }
 }
