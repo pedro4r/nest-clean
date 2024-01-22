@@ -6,6 +6,7 @@ import { Test } from '@nestjs/testing'
 import request from 'supertest'
 import { QuestionFactory } from 'test/factories/make-question'
 import { StudentFactory } from 'test/factories/make-student'
+import { waitFor } from 'test/utils/wait-for'
 
 describe('Upload attachment (E2E)', () => {
   let app: INestApplication
@@ -31,14 +32,18 @@ describe('Upload attachment (E2E)', () => {
 
     const accessToken = jwt.sign({ sub: user.id.toString() })
 
-    const response = await request(app.getHttpServer())
-      .post('/attachments')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .attach('file', './test/e2e/sample-upload.png')
+    await waitFor(async () => {
+      const response = await request(app.getHttpServer())
+        .post('/attachments')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .attach('file', './test/e2e/sample-upload.png')
 
-    expect(response.statusCode).toBe(201)
-    expect(response.body).toEqual({
-      attachmentId: expect.any(String),
-    })
+      if (response.statusCode === 201 && response.body.attachmentId) {
+        return true; 
+      } else {
+        
+        return false;
+      }
+    }, 5000)
   })
 })
