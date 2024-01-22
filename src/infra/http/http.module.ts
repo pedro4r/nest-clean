@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { AuthenticateController } from './controllers/authenticate.controller'
 import { CreateAccountController } from './controllers/create-account.controller'
 import { CreateQuestionController } from './controllers/create-question.controller'
+import { DatabaseModule } from '../database/database.module'
 import { CreateQuestionUseCase } from '@/domain/forum/application/use-cases/create-question'
 import { FetchRecentQuestionsUseCase } from '@/domain/forum/application/use-cases/fetch-recent-questions'
 import { RegisterStudentUseCase } from '@/domain/forum/application/use-cases/register-student'
@@ -10,9 +11,6 @@ import { GetQuestionBySlugController } from './controllers/get-question-by-slug.
 import { GetQuestionBySlugUseCase } from '@/domain/forum/application/use-cases/get-question-by-slug'
 import { EditQuestionController } from './controllers/edit-question.controller'
 import { EditQuestionUseCase } from '@/domain/forum/application/use-cases/edit-question'
-import { DatabaseModule } from '../database/database.module'
-import { CryptographyModule } from '../auth/cryptography/cryptography.module'
-import { FetchRecentQuestionsController } from './controllers/fetch-recent-question.controller'
 import { DeleteQuestionController } from './controllers/delete-question.controller'
 import { DeleteQuestionUseCase } from '@/domain/forum/application/use-cases/delete-question'
 import { AnswerQuestionController } from './controllers/answer-question.controller'
@@ -31,12 +29,15 @@ import { DeleteQuestionCommentController } from './controllers/delete-question-c
 import { DeleteQuestionCommentUseCase } from '@/domain/forum/application/use-cases/delete-question-comment'
 import { CommentOnAnswerController } from './controllers/comment-on-answer.controller'
 import { CommentOnAnswerUseCase } from '@/domain/forum/application/use-cases/comment-on-answer'
-import { DeleteAnswerCommentUseCase } from '@/domain/forum/application/use-cases/delete-answer-comment'
 import { DeleteAnswerCommentController } from './controllers/delete-answer-comment.controller'
-import { FetchQuestionCommentsUseCase } from '@/domain/forum/application/use-cases/fetch-question-comments'
+import { DeleteAnswerCommentUseCase } from '@/domain/forum/application/use-cases/delete-answer-comment'
 import { FetchQuestionCommentsController } from './controllers/fetch-question-comments.controller'
+import { FetchQuestionCommentsUseCase } from '@/domain/forum/application/use-cases/fetch-question-comments'
 import { FetchAnswerCommentsController } from './controllers/fetch-answer-comments.controller'
 import { FetchAnswerCommentsUseCase } from '@/domain/forum/application/use-cases/fetch-answer-comments'
+import { UploadAttachmentController } from './controllers/upload-attachment.controller'
+import { CryptographyModule } from '../auth/cryptography/cryptography.module'
+import { FetchRecentQuestionsController } from './controllers/fetch-recent-question.controller'
 
 @Module({
   imports: [DatabaseModule, CryptographyModule],
@@ -59,6 +60,7 @@ import { FetchAnswerCommentsUseCase } from '@/domain/forum/application/use-cases
     DeleteAnswerCommentController,
     FetchQuestionCommentsController,
     FetchAnswerCommentsController,
+    UploadAttachmentController,
   ],
   providers: [
     CreateQuestionUseCase,
