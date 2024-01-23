@@ -5,65 +5,73 @@ import { QuestionsRepository } from '@/domain/forum/application/repositories/que
 import { Question } from '@/domain/forum/enterprise/entities/question'
 
 export class InMemoryQuestionsRepository implements QuestionsRepository {
-    public items: Question[] = []
+  public items: Question[] = []
 
-    constructor(
-        private questionAttachmentsRepository: QuestionAttachmentsRepository
-    ) {}
+  constructor(
+    private questionAttachmentsRepository: QuestionAttachmentsRepository,
+  ) {}
 
-    async findById(id: string) {
-        const question = this.items.find((item) => item.id.toString() === id)
+  async findById(id: string) {
+    const question = this.items.find((item) => item.id.toString() === id)
 
-        if (!question) {
-            return null
-        }
-
-        return question
+    if (!question) {
+      return null
     }
 
-    async findBySlug(slug: string) {
-        const question = this.items.find((item) => item.slug.value === slug)
+    return question
+  }
 
-        if (!question) {
-            return null
-        }
+  async findBySlug(slug: string) {
+    const question = this.items.find((item) => item.slug.value === slug)
 
-        return question
+    if (!question) {
+      return null
     }
 
-    async findManyRecent({ page }: PaginationParams) {
-        const questions = this.items
-            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-            .slice((page - 1) * 20, page * 20)
+    return question
+  }
 
-        return questions
-    }
+  async findManyRecent({ page }: PaginationParams) {
+    const questions = this.items
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice((page - 1) * 20, page * 20)
 
-    async create(question: Question) {
-        this.items.push(question)
+    return questions
+  }
 
-        DomainEvents.dispatchEventsForAggregate(question.id)
-    }
+  async create(question: Question) {
+    this.items.push(question)
 
-    async save(question: Question) {
-        const itemIndex = this.items.findIndex(
-            (item) => item.id === question.id
-        )
+    await this.questionAttachmentsRepository.createMany(
+      question.attachments.getItems(),
+    )
 
-        this.items[itemIndex] = question
+    DomainEvents.dispatchEventsForAggregate(question.id)
+  }
 
-        DomainEvents.dispatchEventsForAggregate(question.id)
-    }
+  async save(question: Question) {
+    const itemIndex = this.items.findIndex((item) => item.id === question.id)
 
-    async delete(question: Question) {
-        const itemIndex = this.items.findIndex(
-            (item) => item.id === question.id
-        )
+    this.items[itemIndex] = question
 
-        this.items.splice(itemIndex, 1)
+    await this.questionAttachmentsRepository.createMany(
+      question.attachments.getNewItems(),
+    )
 
-        this.questionAttachmentsRepository.deleteManyByQuestionId(
-            question.id.toString()
-        )
-    }
+    await this.questionAttachmentsRepository.deleteMany(
+      question.attachments.getRemovedItems(),
+    )
+
+    DomainEvents.dispatchEventsForAggregate(question.id)
+  }
+
+  async delete(question: Question) {
+    const itemIndex = this.items.findIndex((item) => item.id === question.id)
+
+    this.items.splice(itemIndex, 1)
+
+    this.questionAttachmentsRepository.deleteManyByQuestionId(
+      question.id.toString(),
+    )
+  }
 }
