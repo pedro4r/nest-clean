@@ -10,9 +10,9 @@ export class PrismaAttachmentsRepository implements AttachmentsRepository {
 
   async create(attachment: Attachment): Promise<void> {
     const data = PrismaAttachmentMapper.toPrisma(attachment)
-
     await this.prisma.attachment.create({
       data,
     })
   }
+  
 }
