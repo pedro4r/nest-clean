@@ -12,12 +12,16 @@ import { waitFor } from 'test/utils/wait-for'
 import { makeQuestionComment } from 'test/factories/make-question-comment'
 import { InMemoryQuestionCommentsRepository } from 'test/repositories/in-memory-question-comments-repository'
 import { OnQuestionCommentCreated } from './on-question-comment-created'
+import { InMemoryAttachmentsRepository } from 'test/repositories/in-memory-attachments-repository'
+import { InMemoryStudentsRepository } from 'test/repositories/in-memory-students-repository'
 
 let inMemoryQuestionCommentsRepository: InMemoryQuestionCommentsRepository
 let inMemoryQuestionAttachmentsRepository: InMemoryQuestionAttachmentsRepository
 let inMemoryQuestionsRepository: InMemoryQuestionsRepository
 let inMemoryNotificationsRepository: InMemoryNotificationsRepository
 let sendNotificationUseCase: SendNotificationUseCase
+let inMemoryAttachmentsRepository: InMemoryAttachmentsRepository
+let inMemoryStudentsRepository: InMemoryStudentsRepository
 
 let sendNotificationExecuteSpy: SpyInstance<
     [SendNotificationUseCaseRequest],
@@ -29,12 +33,16 @@ describe('On Question Comment Created', () => {
         inMemoryQuestionAttachmentsRepository =
             new InMemoryQuestionAttachmentsRepository()
 
-        inMemoryQuestionsRepository = new InMemoryQuestionsRepository(
-            inMemoryQuestionAttachmentsRepository
-        )
+            inMemoryQuestionsRepository = new InMemoryQuestionsRepository(
+                inMemoryQuestionAttachmentsRepository,
+                inMemoryAttachmentsRepository,
+                inMemoryStudentsRepository,
+              )
 
         inMemoryQuestionCommentsRepository =
-            new InMemoryQuestionCommentsRepository()
+            new InMemoryQuestionCommentsRepository(
+                inMemoryStudentsRepository,
+            )
 
         inMemoryNotificationsRepository = new InMemoryNotificationsRepository()
 
