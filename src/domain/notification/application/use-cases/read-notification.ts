@@ -6,40 +6,40 @@ import { NotAllowedError } from '@/core/errors/errors/not-allowed-error'
 import { Injectable } from '@nestjs/common'
 
 interface ReadNotificationUseCaseRequest {
-    recipientId: string
-    notificationId: string
+  recipientId: string
+  notificationId: string
 }
 
 type ReadNotificationUseCaseResponse = Either<
-    ResourceNotFoundError | NotAllowedError,
-    {
-        notification: Notification
-    }
+  ResourceNotFoundError | NotAllowedError,
+  {
+    notification: Notification
+  }
 >
 
 @Injectable()
 export class ReadNotificationUseCase {
-    constructor(private notificationsRepository: NotificationsRepository) {}
+  constructor(private notificationsRepository: NotificationsRepository) {}
 
-    async execute({
-        recipientId,
-        notificationId,
-    }: ReadNotificationUseCaseRequest): Promise<ReadNotificationUseCaseResponse> {
-        const notification =
-            await this.notificationsRepository.findById(notificationId)
+  async execute({
+    recipientId,
+    notificationId,
+  }: ReadNotificationUseCaseRequest): Promise<ReadNotificationUseCaseResponse> {
+    const notification =
+      await this.notificationsRepository.findById(notificationId)
 
-        if (!notification) {
-            return left(new ResourceNotFoundError())
-        }
-
-        if (recipientId !== notification.recipientId.toString()) {
-            return left(new NotAllowedError())
-        }
-
-        notification.read()
-
-        await this.notificationsRepository.save(notification)
-
-        return right({ notification })
+    if (!notification) {
+      return left(new ResourceNotFoundError())
     }
+
+    if (recipientId !== notification.recipientId.toString()) {
+      return left(new NotAllowedError())
+    }
+
+    notification.read()
+
+    await this.notificationsRepository.save(notification)
+
+    return right({ notification })
+  }
 }
